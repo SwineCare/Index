@@ -1356,238 +1356,7 @@
             min-width: 700px;
         }
 
-        /* Mobile Sidebar Styles */
-        @media (max-width: 768px) {
-
-            /* Sidebar - Hidden by default on mobile */
-            .sidebar {
-                position: fixed;
-                left: 0;
-                top: 0;
-                height: 100vh;
-                width: 280px;
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-                z-index: 1000;
-                box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
-            }
-
-            /* Sidebar visible state */
-            .sidebar.show {
-                transform: translateX(0);
-            }
-
-            /* Main content takes full width on mobile */
-            .main-content {
-                margin-left: 0 !important;
-                width: 100%;
-                transition: filter 0.3s ease;
-            }
-
-            /* Darken main content when sidebar is open */
-            .main-content.full-width {
-                filter: brightness(0.7);
-                pointer-events: none;
-            }
-
-            /* Mobile menu button - visible on mobile */
-            .mobile-menu-btn {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: none;
-                border: none;
-                font-size: 1.5rem;
-                color: var(--primary-pink);
-                cursor: pointer;
-                padding: 0.5rem;
-                border-radius: 8px;
-                transition: all 0.3s ease;
-            }
-
-            .mobile-menu-btn:hover {
-                background: rgba(233, 30, 99, 0.1);
-            }
-
-            .mobile-menu-btn:active {
-                transform: scale(0.95);
-            }
-
-            /* Overlay for sidebar */
-            .sidebar.show::before {
-                content: '';
-                position: fixed;
-                top: 0;
-                left: 280px;
-                width: calc(100vw - 280px);
-                height: 100vh;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: -1;
-                animation: fadeIn 0.3s ease;
-            }
-
-            @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                }
-
-                to {
-                    opacity: 1;
-                }
-            }
-
-            /* Prevent body scroll when sidebar is open */
-            body.sidebar-open {
-                overflow: hidden;
-            }
-
-            /* Top bar adjustments */
-            .top-bar {
-                padding: 1rem 1.5rem;
-                flex-wrap: nowrap;
-            }
-
-            /* Hide user name on mobile */
-            .user-profile span {
-                display: none;
-            }
-
-            /* Adjust user avatar */
-            .user-avatar {
-                width: 38px;
-                height: 38px;
-                font-size: 0.9rem;
-            }
-
-            /* Logout button adjustments */
-            .logout-btn {
-                padding: 0.5rem 0.9rem;
-                font-size: 0.85rem;
-            }
-
-            .logout-btn i {
-                margin-right: 0.3rem;
-            }
-        }
-
-        /* Desktop - Sidebar always visible */
-        @media (min-width: 769px) {
-            .sidebar {
-                transform: translateX(0) !important;
-                position: fixed;
-            }
-
-            .main-content {
-                margin-left: 280px !important;
-            }
-
-            .mobile-menu-btn {
-                display: none !important;
-            }
-
-            /* Remove any mobile-specific classes on desktop */
-            .sidebar.show {
-                transform: translateX(0);
-            }
-
-            .main-content.full-width {
-                filter: none;
-                pointer-events: auto;
-            }
-        }
-
-        /* Smooth transitions for all screen sizes */
-        .sidebar,
-        .main-content {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Hamburger menu icon animation (optional enhancement) */
-        .mobile-menu-btn i {
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar.show~.app-container .mobile-menu-btn i {
-            transform: rotate(90deg);
-        }
-
-        /* Prevent text selection during sidebar animation */
-        .sidebar,
-        .main-content {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-
-        .sidebar *,
-        .main-content * {
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            user-select: text;
-        }
-
-        /* Touch-friendly nav links on mobile */
-        @media (max-width: 768px) {
-            .nav-link {
-                min-height: 48px;
-                display: flex;
-                align-items: center;
-                padding: 1rem 1.2rem;
-                font-size: 1rem;
-            }
-
-            .nav-link i {
-                font-size: 1.2rem;
-            }
-
-            /* Increase tap target size */
-            .nav-item {
-                margin-bottom: 0.2rem;
-            }
-        }
-
-        /* Accessibility improvements */
-        .mobile-menu-btn:focus {
-            outline: 2px solid var(--primary-pink);
-            outline-offset: 2px;
-        }
-
-        /* Sidebar shadow when open on mobile */
-        @media (max-width: 768px) {
-            .sidebar.show {
-                box-shadow: 8px 0 30px rgba(0, 0, 0, 0.3);
-            }
-        }
-
-        /* Sidebar Backdrop Overlay */
-        .sidebar-backdrop {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .sidebar-backdrop.show {
-            display: block;
-            opacity: 1;
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                z-index: 1000;
-                /* Above backdrop */
-            }
-        }
-
-        /* Bottom Navigation - Mobile Only */
+/* Bottom Navigation - Mobile Only */
 .bottom-nav {
     display: none;
     position: fixed;
@@ -1631,9 +1400,10 @@
     background: rgba(233, 30, 99, 0.05);
 }
 
+/* REMOVED: Active tab background highlight */
 .bottom-nav-item.active {
     color: var(--primary-pink);
-    background: linear-gradient(135deg, rgba(233, 30, 99, 0.1), rgba(240, 98, 146, 0.1));
+    /* background: linear-gradient(135deg, rgba(233, 30, 99, 0.1), rgba(240, 98, 146, 0.1)); */
 }
 
 .bottom-nav-icon {
@@ -1641,10 +1411,12 @@
     margin-bottom: 0.25rem;
     position: relative;
     transition: transform 0.3s ease;
+    color: var(--neutral-gray);
 }
 
 .bottom-nav-item.active .bottom-nav-icon {
     transform: translateY(-2px);
+    color: var(--primary-pink);
 }
 
 .bottom-nav-label {
@@ -1655,10 +1427,16 @@
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
+    color: var(--neutral-gray);
 }
 
-/* Active indicator */
-.bottom-nav-item.active::before {
+.bottom-nav-item.active .bottom-nav-label {
+    color: var(--primary-pink);
+    font-weight: 700;
+}
+
+/* REMOVED: Active indicator dot */
+/* .bottom-nav-item.active::before {
     content: '';
     position: absolute;
     top: -8px;
@@ -1668,6 +1446,20 @@
     height: 4px;
     background: var(--primary-pink);
     border-radius: 50%;
+} */
+
+/* Alternative: Minimal active indicator */
+.bottom-nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 3px;
+    background: var(--primary-pink);
+    border-radius: 2px;
+    opacity: 0.7;
 }
 
 /* Hide sidebar on mobile */
@@ -1734,10 +1526,15 @@
     .bottom-nav-item {
         padding: 0.4rem 0.15rem;
     }
+    
+    .bottom-nav-item.active::after {
+        width: 16px;
+        height: 2px;
+    }
 }
 
-/* Bottom nav animation */
-@keyframes navPulse {
+/* REMOVED: Pulse animation for active icons */
+/* @keyframes navPulse {
     0%, 100% {
         transform: scale(1);
     }
@@ -1748,6 +1545,15 @@
 
 .bottom-nav-item.active .bottom-nav-icon {
     animation: navPulse 0.6s ease;
+} */
+
+/* Simple hover scale animation instead */
+.bottom-nav-item:hover .bottom-nav-icon {
+    transform: scale(1.1);
+}
+
+.bottom-nav-item.active:hover .bottom-nav-icon {
+    transform: translateY(-2px) scale(1.1);
 }
 
 /* Prevent body scroll when bottom nav is active */
@@ -1937,6 +1743,11 @@ body.has-bottom-nav {
         <a href="#" class="bottom-nav-item" onclick="showPage('statistics')" data-page="statistics">
             <i class="fas fa-chart-line bottom-nav-icon"></i>
             <span class="bottom-nav-label">Stats</span>
+        </a>
+
+        <a href="#" class="bottom-nav-item" onclick="showPage('notifications')" data-page="notifications">
+            <i class="fas fa-bell bottom-nav-icon"></i>
+            <span class="bottom-nav-label">Alerts</span>
         </a>
         
         <a href="#" class="bottom-nav-item" onclick="showPage('settings')" data-page="settings">
@@ -6915,6 +6726,50 @@ body.has-bottom-nav {
             chartsInitialized = false;
         }
 
+        // Mobile Sidebar Toggle with Backdrop
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const menuBtn = document.querySelector('.mobile-menu-btn');
+        const backdrop = document.getElementById('sidebarBackdrop');
+
+        if (menuBtn) {
+            menuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('show');
+                if (backdrop) backdrop.classList.toggle('show');
+                document.body.classList.toggle('sidebar-open');
+            });
+        }
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('show');
+                    if (backdrop) backdrop.classList.remove('show');
+                    document.body.classList.remove('sidebar-open');
+                }
+            });
+        });
+
+        // Close sidebar when clicking backdrop
+        if (backdrop) {
+            backdrop.addEventListener('click', () => {
+                sidebar.classList.remove('show');
+                backdrop.classList.remove('show');
+                document.body.classList.remove('sidebar-open');
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('show')) {
+                if (!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+                    sidebar.classList.remove('show');
+                    if (backdrop) backdrop.classList.remove('show');
+                    document.body.classList.remove('sidebar-open');
+                }
+            }
+        });
+
+        //BOTTOM!!
         // Update showPage function to sync with bottom nav
 function showPage(pageId) {
     const pages = document.querySelectorAll('.page-content');
