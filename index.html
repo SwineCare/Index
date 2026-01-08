@@ -1587,130 +1587,177 @@
             }
         }
 
-/* Mobile Bottom Navigation */
-.mobile-bottom-nav {
+        /* Bottom Navigation - Mobile Only */
+.bottom-nav {
     display: none;
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    background: var(--white);
-    border-top: 2px solid var(--border-color);
-    padding: 0.8rem 0;
-    z-index: 1000;
+    background: white;
     box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    border-top: 1px solid var(--border-color);
+    padding: 0.5rem 0;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
-.mobile-nav-link {
+.bottom-nav-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 100%;
+}
+
+.bottom-nav-item {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex: 1;
+    padding: 0.5rem 0.25rem;
     text-decoration: none;
     color: var(--neutral-gray);
-    padding: 0.5rem 0;
     transition: all 0.3s ease;
+    flex: 1;
+    min-width: 0;
     position: relative;
+    border-radius: 12px;
+    margin: 0 0.25rem;
 }
 
-.mobile-nav-link i {
-    font-size: 1.4rem;
-    margin-bottom: 0.3rem;
-    transition: all 0.3s ease;
-}
-
-.mobile-nav-link span {
-    font-size: 0.75rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-/* REMOVED: Active state styling */
-/*
-.mobile-nav-link.active {
+.bottom-nav-item:hover {
     color: var(--primary-pink);
+    background: rgba(233, 30, 99, 0.05);
 }
 
-.mobile-nav-link.active i {
+.bottom-nav-item.active {
     color: var(--primary-pink);
+    background: linear-gradient(135deg, rgba(233, 30, 99, 0.1), rgba(240, 98, 146, 0.1));
+}
+
+.bottom-nav-icon {
+    font-size: 1.2rem;
+    margin-bottom: 0.25rem;
+    position: relative;
+    transition: transform 0.3s ease;
+}
+
+.bottom-nav-item.active .bottom-nav-icon {
     transform: translateY(-2px);
 }
 
-.mobile-nav-link.active span {
-    color: var(--primary-pink);
-    font-weight: 700;
+.bottom-nav-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
 }
 
-.mobile-nav-link::after {
+/* Active indicator */
+.bottom-nav-item.active::before {
     content: '';
     position: absolute;
-    top: 0;
+    top: -8px;
     left: 50%;
     transform: translateX(-50%);
-    width: 40px;
-    height: 3px;
+    width: 4px;
+    height: 4px;
     background: var(--primary-pink);
-    border-radius: 0 0 3px 3px;
-    opacity: 0;
-    transition: all 0.3s ease;
+    border-radius: 50%;
 }
 
-.mobile-nav-link.active::after {
-    opacity: 1;
-    top: -2px;
-}
-
-@keyframes navItemBounce {
-    0%, 100% {
-        transform: translateY(0);
-    }
-    50% {
-        transform: translateY(-3px);
-    }
-}
-
-.mobile-nav-link.active i {
-    animation: navItemBounce 0.5s ease;
-}
-*/
-
-/* Adjust main content for bottom nav */
+/* Hide sidebar on mobile */
 @media (max-width: 768px) {
-    .mobile-bottom-nav {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
+    .sidebar {
+        display: none !important;
     }
     
     .main-content {
-        padding-bottom: 70px; /* Space for bottom nav */
+        margin-left: 0 !important;
+        padding-bottom: 80px !important; /* Space for bottom nav */
     }
     
-    /* Hide sidebar on mobile */
-    .sidebar {
+    .bottom-nav {
+        display: block;
+    }
+    
+    .mobile-menu-btn {
+        display: none !important;
+    }
+    
+    /* Adjust top bar for mobile */
+    .top-bar {
+        padding: 1rem 1.2rem;
+        margin-bottom: 1rem;
+        border-radius: 0 0 16px 16px;
+    }
+    
+    .user-profile span {
         display: none;
     }
     
-    /* Adjust top bar spacing */
-    .top-bar {
-        margin-bottom: 1.5rem;
+    /* Make room for bottom nav on all pages */
+    .page-content {
+        margin-bottom: 2rem;
     }
 }
 
-/* Desktop - Hide bottom nav, show sidebar */
+/* Desktop - Show sidebar, hide bottom nav */
 @media (min-width: 769px) {
-    .mobile-bottom-nav {
+    .bottom-nav {
         display: none !important;
     }
     
     .sidebar {
-        display: block;
+        display: block !important;
     }
     
     .main-content {
-        padding-bottom: 2rem;
+        padding-bottom: 2rem !important;
     }
+}
+
+/* Enhanced bottom nav for very small screens */
+@media (max-width: 375px) {
+    .bottom-nav-label {
+        font-size: 0.6rem;
+    }
+    
+    .bottom-nav-icon {
+        font-size: 1.1rem;
+    }
+    
+    .bottom-nav-item {
+        padding: 0.4rem 0.15rem;
+    }
+}
+
+/* Bottom nav animation */
+@keyframes navPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.bottom-nav-item.active .bottom-nav-icon {
+    animation: navPulse 0.6s ease;
+}
+
+/* Prevent body scroll when bottom nav is active */
+body.has-bottom-nav {
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Safe area support for iOS */
+.bottom-nav {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
 }
     </style>
 </head>
@@ -1869,45 +1916,43 @@
             </ul>
         </nav>
 
-<!-- Add this right before closing </body> tag -->
-<div id="mobileBottomNav" class="mobile-bottom-nav">
-    <a href="#" class="mobile-nav-link active" onclick="showPage('dashboard'); return false;">
-        <i class="fas fa-tachometer-alt"></i>
-        <span>Dashboard</span>
-    </a>
-    <a href="#" class="mobile-nav-link" onclick="showPage('pigs'); return false;">
-        <i class="fas fa-piggy-bank"></i>
-        <span>Hogs</span>
-    </a>
-    <a href="#" class="mobile-nav-link" onclick="showPage('comparison'); return false;">
-        <i class="fas fa-balance-scale"></i>
-        <span>Compare</span>
-    </a>
-    <a href="#" class="mobile-nav-link" onclick="showPage('statistics'); return false;">
-        <i class="fas fa-chart-line"></i>
-        <span>Stats</span>
-    </a>
-    <a href="#" class="mobile-nav-link" onclick="showPage('notifications'); return false;">
-        <i class="fas fa-bell"></i>
-        <span>Alerts</span>
-    </a>
-    <a href="#" class="mobile-nav-link" onclick="showPage('reports'); return false;">
-        <i class="fas fa-file-pdf"></i>
-        <span>Reports</span>
-    </a>
-    <a href="#" class="mobile-nav-link" onclick="showPage('settings'); return false;">
-        <i class="fas fa-cog"></i>
-        <span>Settings</span>
-    </a>
-</div>
+        <!-- Modern Bottom Navigation (Mobile Only) -->
+<nav class="bottom-nav" id="bottomNav">
+    <div class="bottom-nav-container">
+        <a href="#" class="bottom-nav-item active" onclick="showPage('dashboard')" data-page="dashboard">
+            <i class="fas fa-tachometer-alt bottom-nav-icon"></i>
+            <span class="bottom-nav-label">Dashboard</span>
+        </a>
+        
+        <a href="#" class="bottom-nav-item" onclick="showPage('pigs')" data-page="pigs">
+            <i class="fas fa-piggy-bank bottom-nav-icon"></i>
+            <span class="bottom-nav-label">Hogs</span>
+        </a>
+        
+        <a href="#" class="bottom-nav-item" onclick="showPage('comparison')" data-page="comparison">
+            <i class="fas fa-balance-scale bottom-nav-icon"></i>
+            <span class="bottom-nav-label">Compare</span>
+        </a>
+        
+        <a href="#" class="bottom-nav-item" onclick="showPage('statistics')" data-page="statistics">
+            <i class="fas fa-chart-line bottom-nav-icon"></i>
+            <span class="bottom-nav-label">Stats</span>
+        </a>
+        
+        <a href="#" class="bottom-nav-item" onclick="showPage('settings')" data-page="settings">
+            <i class="fas fa-cog bottom-nav-icon"></i>
+            <span class="bottom-nav-label">Settings</span>
+        </a>
+    </div>
+</nav>
 
         <!-- Main Content -->
         <main class="main-content" id="mainContent">
             <!-- Top Bar -->
             <div class="top-bar">
-                <!-- <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                <button class="mobile-menu-btn" onclick="toggleSidebar()">
                     <i class="fas fa-bars"></i>
-                </button> -->
+                </button>
                 <h2 id="pageTitle" style="font-weight: 700; color: var(--dark-gray);">Dashboard</h2>
                 <div class="user-profile">
                     <div class="user-avatar" id="userAvatar">U</div>
@@ -2782,19 +2827,15 @@
 
     <script>
         // Firebase Configuration
-        
-const firebaseConfig = {
-  apiKey: "AIzaSyBAKTPpU7RsfqIrOrp9o98JnCL-RbUVWNs",
-  authDomain: "capstone-996a3.firebaseapp.com",
-  databaseURL: "https://capstone-996a3-default-rtdb.firebaseio.com",
-  projectId: "capstone-996a3",
-  storageBucket: "capstone-996a3.firebasestorage.app",
-  messagingSenderId: "297091452987",
-  appId: "1:297091452987:web:a68ccf7b53b6b69d80cc1e",
-  measurementId: "G-DKVPP635XC"
-};
-
-// END FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyBAKTPpU7RsfqIrOrp9o98JnCL-RbUVWNs",
+            authDomain: "capstone-996a3.firebaseapp.com",
+            projectId: "capstone-996a3",
+            storageBucket: "capstone-996a3.firebasestorage.app",
+            messagingSenderId: "297091452987",
+            appId: "1:297091452987:web:a68ccf7b53b6b69d80cc1e",
+            databaseURL: "https://capstone-996a3-default-rtdb.firebaseio.com/"
+        };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -6522,6 +6563,20 @@ const firebaseConfig = {
             }
         });
 
+        // Initialize charts when statistics page is shown
+        let chartsInitialized = false;
+        const originalShowPage = showPage;
+        showPage = function (pageId) {
+            originalShowPage.call(this, pageId);
+            if (pageId === 'statistics' && !chartsInitialized) {
+                setTimeout(() => {
+                    initializeCharts();
+                    updateCharts();
+                    chartsInitialized = true;
+                }, 100);
+            }
+        };
+
         // Close modals when clicking outside
         window.onclick = function (event) {
             const sellModal = document.getElementById('sellPigModal');
@@ -6860,56 +6915,26 @@ const firebaseConfig = {
             chartsInitialized = false;
         }
 
-// Update mobile bottom navigation when changing pages
-function updateMobileNavigation(pageId) {
-    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
-    if (mobileNavLinks.length === 0) return;
-    
-    // Remove active class from all links
-    mobileNavLinks.forEach(link => link.classList.remove('active'));
-    
-    // Map page IDs to their corresponding mobile nav items
-    const navMap = {
-        'dashboard': 0,      // Dashboard
-        'pigs': 1,           // Hogs
-        'comparison': 2,     // Compare
-        'statistics': 3,     // Stats
-        'notifications': 4,  // Alerts
-        'reports': 5,        // Reports
-        'settings': 6        // Settings
-    };
-    
-    const linkIndex = navMap[pageId];
-    if (linkIndex !== undefined && mobileNavLinks[linkIndex]) {
-        mobileNavLinks[linkIndex].classList.add('active');
-    }
-}
-
-// Override the showPage function
-window.showPage = function(pageId) {
-    // Store current page in data attribute for reference
-    document.body.setAttribute('data-current-page', pageId);
-    
-    // Hide all pages
+        // Update showPage function to sync with bottom nav
+function showPage(pageId) {
     const pages = document.querySelectorAll('.page-content');
     pages.forEach(page => page.classList.remove('active'));
-    
-    // Show selected page
-    const selectedPage = document.getElementById(pageId + 'Page');
-    if (selectedPage) {
-        selectedPage.classList.add('active');
-    }
-    
-    // Update nav links in sidebar
+
+    document.getElementById(pageId + 'Page').classList.add('active');
+
+    // Update sidebar nav links
     const navLinks = document.querySelectorAll('.nav-link');
     navLinks.forEach(link => link.classList.remove('active'));
     
-    // Find and activate the clicked nav link in sidebar
-    const clickedNavLink = document.querySelector(`.nav-link[onclick*="${pageId}"]`);
-    if (clickedNavLink) {
-        clickedNavLink.classList.add('active');
-    }
-    
+    // Update bottom nav items
+    const bottomNavItems = document.querySelectorAll('.bottom-nav-item');
+    bottomNavItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('data-page') === pageId) {
+            item.classList.add('active');
+        }
+    });
+
     // Update page title
     const titles = {
         'dashboard': 'Dashboard',
@@ -6921,72 +6946,89 @@ window.showPage = function(pageId) {
         'settings': 'Camera Settings'
     };
     
-    const pageTitle = document.getElementById('pageTitle');
-    if (pageTitle && titles[pageId]) {
-        pageTitle.textContent = titles[pageId];
-    }
+    document.getElementById('pageTitle').textContent = titles[pageId] || 'SwineCare';
     
-    // Update mobile navigation
-    if (window.innerWidth <= 768) {
-        updateMobileNavigation(pageId);
-    }
-    
-    // Hide sidebar on mobile after navigation
+    // Close sidebar on mobile if open
     if (window.innerWidth <= 768) {
         const sidebar = document.getElementById('sidebar');
-        if (sidebar) {
+        const backdrop = document.getElementById('sidebarBackdrop');
+        if (sidebar && backdrop) {
             sidebar.classList.remove('show');
-        }
-        const backdrop = document.querySelector('.sidebar-backdrop');
-        if (backdrop) {
             backdrop.classList.remove('show');
+            document.body.classList.remove('sidebar-open');
         }
     }
-};
-
-// Handle window resize
-window.addEventListener('resize', function() {
-    // Update mobile navigation based on current page
-    const currentPage = document.body.getAttribute('data-current-page') || 'dashboard';
-    if (window.innerWidth <= 768) {
-        updateMobileNavigation(currentPage);
-    }
-});
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-    // Set initial page
-    const initialPage = 'dashboard';
-    document.body.setAttribute('data-current-page', initialPage);
     
-    // Initialize mobile navigation
-    if (window.innerWidth <= 768) {
-        updateMobileNavigation(initialPage);
-        
-        // Hide sidebar on mobile
+    // Update charts if on statistics page
+    if (pageId === 'statistics') {
+        setTimeout(() => {
+            if (!chartsInitialized) {
+                initializeCharts();
+                updateCharts();
+                chartsInitialized = true;
+            }
+        }, 100);
+    }
+}
+
+// Hide mobile menu button on mobile
+function toggleSidebar() {
+    // This function is now only for desktop
+    if (window.innerWidth > 768) {
         const sidebar = document.getElementById('sidebar');
-        if (sidebar) {
-            sidebar.classList.remove('show');
-            sidebar.style.display = 'none';
-        }
+        const backdrop = document.getElementById('sidebarBackdrop');
+        sidebar.classList.toggle('show');
+        if (backdrop) backdrop.classList.toggle('show');
+        document.body.classList.toggle('sidebar-open');
+    }
+}
+
+// Update mobile menu button visibility
+function updateMobileUI() {
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    if (window.innerWidth <= 768) {
+        if (mobileMenuBtn) mobileMenuBtn.style.display = 'none';
+    } else {
+        if (mobileMenuBtn) mobileMenuBtn.style.display = 'flex';
+    }
+}
+
+// Listen for resize events
+window.addEventListener('resize', updateMobileUI);
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', function() {
+    updateMobileUI();
+    
+    // Add safe area class for iOS
+    if (/(iPad|iPhone|iPod)/g.test(navigator.userAgent)) {
+        document.body.classList.add('has-bottom-nav');
     }
 });
 
-// Add event listeners for mobile navigation
-document.addEventListener('DOMContentLoaded', function() {
-    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
-    mobileNavLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const pageId = this.getAttribute('data-page') || 
-                          this.getAttribute('onclick')?.match(/showPage\('(.+?)'\)/)?.[1];
-            
-            if (pageId) {
-                window.showPage(pageId);
-            }
-        });
-    });
-});
+// Update the existing showMainApp function to handle bottom nav
+function showMainApp() {
+    document.getElementById('authContainer').style.display = 'none';
+    document.getElementById('appContainer').style.display = 'flex';
+
+    const displayName = currentUser.displayName || 'Farmer';
+    document.getElementById('userName').textContent = displayName;
+    document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
+
+    loadPigs();
+    loadNotifications();
+    setupRealtimeListeners();
+
+    chartsInitialized = false;
+    
+    // Initialize bottom nav active state
+    setTimeout(() => {
+        const bottomNav = document.getElementById('bottomNav');
+        if (bottomNav && window.innerWidth <= 768) {
+            bottomNav.style.display = 'block';
+        }
+    }, 100);
+}
     </script>
 </body>
 
