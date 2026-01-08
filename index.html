@@ -535,7 +535,7 @@
         }
 
         /* Camera Section */
-        .-section {
+        .camera-section {
             background: white;
             border-radius: 20px;
             padding: 1.8rem;
@@ -2919,25 +2919,17 @@ body.has-bottom-nav {
 
         // Camera Settings - Store URLs
         let CAMERA_URLS = {
-            behavior: "http://cam_stream.local:81/stream"
+            behavior: "https://cam_stream.local:81/stream"
         };
 
-        let THERMAL_WS_URL = "ws://heatmap/thermal";
-        let CONTROL_WS_URL = "ws://heatmap/control";
+        let THERMAL_WS_URL = "wss://heatmap/thermal";
+        let CONTROL_WS_URL = "wss://heatmap/control";
 
         const DEFAULT_CAMERA_URLS = {
             behavior: "http://cam_stream.local:81/stream",
             thermal: "ws://heatmap/thermal",
             control: "ws://heatmap/control"
         };
-
-        function getWebSocketURL(path) {
-    if (window.location.protocol === 'https:') {
-        return `wss://${window.location.hostname}/${path}`;
-    } else {
-        return `ws://${window.location.hostname}/${path}`;
-    }
-}
 
         let controlConnecting = false;
 
@@ -2964,41 +2956,21 @@ body.has-bottom-nav {
 
         let processing = false;
 
-function loadCameraSettings() {
-    const savedSettings = localStorage.getItem('cameraSettings');
-    
-    // Default URLs based on current protocol
-    const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-    const host = window.location.hostname;
-    
-    const DEFAULT_URLS = {
-        behavior: `http://${host}:81/stream`,  // HTTP for camera stream
-        thermal: `${protocol}${host}/thermal`,  // WS/WSS for thermal
-        control: `${protocol}${host}/control`   // WS/WSS for control
-    };
-
-    if (savedSettings) {
-        try {
-            const settings = JSON.parse(savedSettings);
-            CAMERA_URLS.behavior = settings.behavior || DEFAULT_URLS.behavior;
-            THERMAL_WS_URL = settings.thermal || DEFAULT_URLS.thermal;
-            CONTROL_WS_URL = settings.control || DEFAULT_URLS.control;
-        } catch (error) {
-            console.error('Error loading camera settings:', error);
-            // Use defaults
-            CAMERA_URLS.behavior = DEFAULT_URLS.behavior;
-            THERMAL_WS_URL = DEFAULT_URLS.thermal;
-            CONTROL_WS_URL = DEFAULT_URLS.control;
+        // Load saved camera settings from localStorage
+        function loadCameraSettings() {
+            const savedSettings = localStorage.getItem('cameraSettings');
+            if (savedSettings) {
+                try {
+                    const settings = JSON.parse(savedSettings);
+                    CAMERA_URLS.behavior = settings.behavior || DEFAULT_CAMERA_URLS.behavior;
+                    THERMAL_WS_URL = settings.thermal || DEFAULT_CAMERA_URLS.thermal;
+                    CONTROL_WS_URL = settings.control || DEFAULT_CAMERA_URLS.control;
+                } catch (error) {
+                    console.error('Error loading camera settings:', error);
+                }
+            }
+            updateCurrentSettingsDisplay();
         }
-    } else {
-        // Use defaults
-        CAMERA_URLS.behavior = DEFAULT_URLS.behavior;
-        THERMAL_WS_URL = DEFAULT_URLS.thermal;
-        CONTROL_WS_URL = DEFAULT_URLS.control;
-    }
-    
-    updateCurrentSettingsDisplay();
-}
 
         // Save camera settings to localStorage
         function saveCameraSettings() {
