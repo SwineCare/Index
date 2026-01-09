@@ -1934,7 +1934,6 @@ body.has-bottom-nav {
         </div>
     </div>
 
-            
     <script>
         // Ensure Firebase is initialized
         document.addEventListener('DOMContentLoaded', function() {
@@ -3046,16 +3045,16 @@ body.has-bottom-nav {
 
         // Camera Settings - Store URLs
         let CAMERA_URLS = {
-            behavior: "https://cam_stream.local:81/stream"
+            behavior: "http://cam_stream.local:81/stream"
         };
 
-        let THERMAL_WS_URL = "wss://heatmap/thermal";
-        let CONTROL_WS_URL = "wss://heatmap/control";
+        let THERMAL_WS_URL = "ws://heatmap/thermal";
+        let CONTROL_WS_URL = "ws://heatmap/control";
 
         const DEFAULT_CAMERA_URLS = {
-            behavior: "https://cam_stream.local:81/stream",
-            thermal: "wss://heatmap/thermal",
-            control: "wss://heatmap/control"
+            behavior: "http://cam_stream.local:81/stream",
+            thermal: "ws://heatmap/thermal",
+            control: "ws://heatmap/control"
         };
 
         let controlConnecting = false;
