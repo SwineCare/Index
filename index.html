@@ -3066,19 +3066,19 @@ body.has-bottom-nav {
             }
         }
 
-        // Camera Settings - Store URLs
-        let CAMERA_URLS = {
-            behavior: "https://wuthering-jannette-nonenteric.ngrok-free.dev/stream"
-        };
+// Public URLs assigned by ngrok
+let CAMERA_URLS = {
+    behavior: "https://wuthering-jannette-nonenteric.ngrok-free.dev/stream"
+};
 
-        let THERMAL_WS_URL = null;
-        let CONTROL_WS_URL = null;
+let THERMAL_WS_URL = "wss://wuthering-jannette-nonenteric.ngrok-free.dev/thermal";
+let CONTROL_WS_URL = "wss://wuthering-jannette-nonenteric.ngrok-free.dev/control";
 
-        const DEFAULT_CAMERA_URLS = {
-            behavior: "http://cam_stream.local:81/stream",
-            thermal: "ws://heatmap/thermal",
-            control: "ws://heatmap/control"
-        };
+const DEFAULT_CAMERA_URLS = {
+    behavior: CAMERA_URLS.behavior,
+    thermal: THERMAL_WS_URL,
+    control: CONTROL_WS_URL
+};
 
         let controlConnecting = false;
 
