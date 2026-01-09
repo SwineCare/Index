@@ -1908,33 +1908,30 @@ body.has-bottom-nav {
         </label>
     </div>
 
-    <div>
-        <!-- Yellow automatic trigger info card -->
-        <div style="
-            background-color: #fff3cd;
-            border: 1px solid #ffecb5;
-            color: #664d03;
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-        ">
-            <i class="fas fa-temperature-high"></i>
-            Above 40°C Automatically Triggered Automatic Shower
-        </div>
+    <!-- Yellow Info Card -->
+    <div class="info-card">
+        <strong>Automatic Shower</strong><br>
+        Above <b>40°C</b> automatically triggers the shower.
+        <br>
+        <small>(Will not stop releasing water unless swine body temperature decreases)</small>
 
-        <!-- Manual trigger button -->
-        <button id="manualShowerBtn"
-            class="btn btn-secondary mt-2"
-            onclick="manualShower(this)"
-            style="width: 100%;">
-            <i class="fas fa-shower"></i> Shower Now
-        </button>
+        <hr>
+
+        <strong>Manual Shower</strong><br>
+        Manually triggered through the button.
+        <br>
+        <small>(Releases water for 60 seconds)</small>
     </div>
+
+    <!-- Manual Shower Button -->
+    <button id="manualShowerBtn"
+        class="btn btn-secondary mt-2"
+        onclick="manualShower(this)"
+        style="width: 100%;">
+        <i class="fas fa-shower"></i> Shower Now
+    </button>
 </div>
+
 
 
     <script>
