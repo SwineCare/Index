@@ -1718,7 +1718,6 @@ body.has-bottom-nav {
                         Settings
                     </a>
                 </li>
-
             </ul>
         </nav>
 
@@ -1757,172 +1756,299 @@ body.has-bottom-nav {
     </div>
 </nav>
 
-        <!-- Main Content -->
-        <main class="main-content" id="mainContent">
-            <!-- Top Bar -->
-            <div class="top-bar">
-                <button class="mobile-menu-btn" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h2 id="pageTitle" style="font-weight: 700; color: var(--dark-gray);">Dashboard</h2>
-                <div class="user-profile">
-                    <div class="user-avatar" id="userAvatar">U</div>
-                    <span id="userName">Farmer</span>
-                    <button class="logout-btn" onclick="logout()">
-                        <i class="fas fa-sign-out-alt"></i> Logout
+<!-- Main Content -->
+<main class="main-content" id="mainContent">
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <h2 id="pageTitle" style="font-weight: 700; color: var(--dark-gray);">Dashboard</h2>
+        <div class="user-profile">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <span id="userName">Farmer</span>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboardPage" class="page-content active">
+        <div class="page-header">
+            <h1 class="page-title">Real-Time Monitoring Dashboard</h1>
+            <p class="page-subtitle">Monitor your swine health and environment in real-time</p>
+
+            <!-- Refresh Button -->
+            <button class="btn btn-primary" id="refreshBtn">
+                <i class="fas fa-sync-alt"></i> Refresh Data
+            </button>
+            
+            <!-- Admin Panel Button (hidden by default) -->
+            <button
+                id="adminPanelBtn"
+                class="btn btn-primary"
+                style="display:none; margin-top:1rem;"
+                onclick="window.location.href='https://swinecare.github.io/panel'">
+                <i class="fas fa-user-shield"></i> Admin Panel
+            </button>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Registered Hogs</span>
+                    <div class="stat-icon">
+                        <i class="fas fa-piggy-bank"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="pigCount">0</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Ambient Temperature</span>
+                    <div class="stat-icon">
+                        <i class="fas fa-thermometer-half"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="temperature">--<span class="stat-unit">°C</span></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Humidity</span>
+                    <div class="stat-icon">
+                        <i class="fas fa-tint"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="humidity">--<span class="stat-unit">%</span></div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-header">
+                    <span class="stat-title">Hogs Body Temp</span>
+                    <div class="stat-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                </div>
+                <div class="stat-value" id="pigBodyTemp">--<span class="stat-unit">°C</span></div>
+            </div>
+        </div>
+
+        <!-- Camera Section -->
+        <div class="camera-section">
+            <div class="chart-header">
+                <h3>Live Camera Monitoring</h3>
+                <div class="camera-controls">
+                    <button class="btn btn-secondary" onclick="switchCamera('behavior')">
+                        <i class="fas fa-eye"></i> Behavior Cam
+                    </button>
+                    <button class="btn btn-secondary" onclick="switchCamera('thermal')">
+                        <i class="fas fa-thermometer-half"></i> Thermal Cam
                     </button>
                 </div>
             </div>
 
-            <!-- Dashboard Page -->
-            <div id="dashboardPage" class="page-content active">
-                <div class="page-header">
-                    <h1 class="page-title">Real-Time Monitoring Dashboard</h1>
-                    <p class="page-subtitle">Monitor your swine health and environment in real-time</p>
-                </div>
+            <div class="camera-view">
+                <div class="camera-placeholder" id="cameraFeed">
+                    <img id="camImg" src="" alt="Camera Feed"
+                        style="max-width: 100%; height: 100%; border-radius: 16px; display: none;" />
 
-                <!-- Stats Grid -->
-                <div class="dashboard-grid">
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <span class="stat-title">Registered Hogs</span>
-                            <div class="stat-icon">
-                                <i class="fas fa-piggy-bank"></i>
-                            </div>
-                        </div>
-                        <div class="stat-value" id="pigCount">0</div>
+                    <div id="thermalContainer" style="display: none; text-align: center;">
+                        <canvas id="canvas" width="320" height="240"
+                            style="border-radius: 16px; background: black; max-width: 100%;"></canvas>
                     </div>
 
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <span class="stat-title">Ambient Temperature</span>
-                            <div class="stat-icon">
-                                <i class="fas fa-thermometer-half"></i>
-                            </div>
-                        </div>
-                        <div class="stat-value" id="temperature">--<span class="stat-unit">°C</span></div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <span class="stat-title">Humidity</span>
-                            <div class="stat-icon">
-                                <i class="fas fa-tint"></i>
-                            </div>
-                        </div>
-                        <div class="stat-value" id="humidity">--<span class="stat-unit">%</span></div>
-                    </div>
-
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <span class="stat-title">Hogs Body Temp</span>
-                            <div class="stat-icon">
-                                <i class="fas fa-heartbeat"></i>
-                            </div>
-                        </div>
-                        <div class="stat-value" id="pigBodyTemp">--<span class="stat-unit">°C</span></div>
-                    </div>
-                </div>
-
-                <!-- Camera Section -->
-                <div class="camera-section">
-                    <div class="chart-header">
-                        <h3>Live Camera Monitoring</h3>
-                        <div class="camera-controls">
-                            <button class="btn btn-secondary" onclick="switchCamera('behavior')">
-                                <i class="fas fa-eye"></i> Behavior Cam
-                            </button>
-                            <button class="btn btn-secondary" onclick="switchCamera('thermal')">
-                                <i class="fas fa-thermometer-half"></i> Thermal Cam
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="camera-view">
-                        <div class="camera-placeholder" id="cameraFeed">
-                            <img id="camImg" src="" alt="Camera Feed"
-                                style="max-width: 100%; height: 100%; border-radius: 16px; display: none;" />
-
-                            <div id="thermalContainer" style="display: none; text-align: center;">
-                                <canvas id="canvas" width="320" height="240"
-                                    style="border-radius: 16px; background: black; max-width: 100%;"></canvas>
-                            </div>
-
-                            <div id="camPlaceholder" style="text-align: center; color: white;">
-                                <i class="fas fa-video"></i>
-                                <div>Live Camera Feed - Behavior Monitoring</div>
-                                <div>Waiting for ESP32 Camera...</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Controls Section -->
-                <div class="controls-section">
-                    <div class="control-card">
-                        <div class="control-header">
-                            <span class="control-title"><i class="fas fa-bowl-rice"
-                                    style="margin-right: 0.5rem; color: var(--primary-pink);"></i> Automatic
-                                Feeder</span>
-                            <label class="switch">
-                                <input type="checkbox" id="feederSwitch" onchange="toggleFeeder()">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="feedSchedule">Feeding Schedule</label>
-                            <input type="time" id="feedSchedule" class="schedule-input" value="08:00">
-                            <input type="time" id="feedSchedule2" class="schedule-input" value="16:00"
-                                style="margin-top: 0.5rem;">
-
-                            <button class="btn btn-primary mt-2" onclick="saveFeedingSchedule()" style="width: 100%;">
-                                <i class="fas fa-save"></i> Save Schedule
-                            </button>
-
-                            <!-- Update this button -->
-                            <button class="btn btn-secondary mt-2" onclick="manualFeed(this)" style="width: 100%;">
-                                <i class="fas fa-play"></i> Feed Now
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="control-card">
-                        <div class="control-header">
-                            <span class="control-title"><i class="fas fa-shower"
-                                    style="margin-right: 0.5rem; color: var(--primary-pink);"></i> Water Shower</span>
-                            <label class="switch">
-                                <input type="checkbox" id="showerSwitch" disabled>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div>
-                            <!-- Add this style block for the spinner animation transparency -->
-                            <style>
-                                @keyframes spinner-spin {
-                                    0% {
-                                        transform: rotate(0deg);
-                                    }
-
-                                    100% {
-                                        transform: rotate(360deg);
-                                    }
-                                }
-                            </style>
-
-                            <label for="showerSchedule">Shower Schedule</label>
-                            <input type="time" id="showerSchedule" class="schedule-input" value="12:00">
-                            <input type="time" id="showerSchedule2" class="schedule-input" value="18:00"
-                                style="margin-top: 0.5rem;">
-
-                            <!-- Updated onclick to pass 'this' -->
-                            <button id="manualShowerBtn" class="btn btn-secondary mt-2" onclick="manualShower(this)"
-                                style="width: 100%;">
-                                <i class="fas fa-shower"></i> Shower Now
-                            </button>
-                        </div>
+                    <div id="camPlaceholder" style="text-align: center; color: white;">
+                        <i class="fas fa-video"></i>
+                        <div>Live Camera Feed - Behavior Monitoring</div>
+                        <div>Waiting for ESP32 Camera...</div>
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Controls Section -->
+        <div class="controls-section">
+            <div class="control-card">
+                <div class="control-header">
+                    <span class="control-title"><i class="fas fa-bowl-rice"
+                            style="margin-right: 0.5rem; color: var(--primary-pink);"></i> Automatic
+                        Feeder</span>
+                    <label class="switch">
+                        <input type="checkbox" id="feederSwitch" onchange="toggleFeeder()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="col-md-6">
+                    <label for="feedSchedule">Feeding Schedule</label>
+                    <input type="time" id="feedSchedule" class="schedule-input" value="08:00">
+                    <input type="time" id="feedSchedule2" class="schedule-input" value="16:00"
+                        style="margin-top: 0.5rem;">
+
+                    <button class="btn btn-primary mt-2" onclick="saveFeedingSchedule()" style="width: 100%;">
+                        <i class="fas fa-save"></i> Save Schedule
+                    </button>
+
+                    <!-- Update this button -->
+                    <button class="btn btn-secondary mt-2" onclick="manualFeed(this)" style="width: 100%;">
+                        <i class="fas fa-play"></i> Feed Now
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-card">
+                <div class="control-header">
+                    <span class="control-title"><i class="fas fa-shower"
+                            style="margin-right: 0.5rem; color: var(--primary-pink);"></i> Water Shower</span>
+                    <label class="switch">
+                        <input type="checkbox" id="showerSwitch" disabled>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div>
+                    <!-- Add this style block for the spinner animation transparency -->
+                    <style>
+                        @keyframes spinner-spin {
+                            0% {
+                                transform: rotate(0deg);
+                            }
+
+                            100% {
+                                transform: rotate(360deg);
+                            }
+                        }
+                    </style>
+
+                    <label for="showerSchedule">Shower Schedule</label>
+                    <input type="time" id="showerSchedule" class="schedule-input" value="12:00">
+                    <input type="time" id="showerSchedule2" class="schedule-input" value="18:00"
+                        style="margin-top: 0.5rem;">
+
+                    <!-- Updated onclick to pass 'this' -->
+                    <button id="manualShowerBtn" class="btn btn-secondary mt-2" onclick="manualShower(this)"
+                        style="width: 100%;">
+                        <i class="fas fa-shower"></i> Shower Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Ensure Firebase is initialized
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeButtons();
+        });
+
+        function initializeButtons() {
+            // Refresh button functionality
+            const refreshBtn = document.getElementById('refreshBtn');
+            refreshBtn.addEventListener('click', refreshDashboard);
+
+            // Check admin status
+            checkAdminStatus();
+            
+            // Also check when auth state changes
+            if (typeof firebase !== 'undefined' && firebase.auth) {
+                firebase.auth().onAuthStateChanged(checkAdminStatus);
+            }
+        }
+
+        async function checkAdminStatus() {
+            const adminPanelBtn = document.getElementById('adminPanelBtn');
+            
+            // Hide by default
+            adminPanelBtn.style.display = 'none';
+            
+            // Check if firebase is available and user is logged in
+            if (typeof firebase === 'undefined' || !firebase.auth) {
+                console.error('Firebase not initialized');
+                return;
+            }
+
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                return;
+            }
+
+            try {
+                const userDoc = await firebase
+                    .firestore()
+                    .collection('users')
+                    .doc(user.uid)
+                    .get();
+
+                if (userDoc.exists && userDoc.data().role === 'admin') {
+                    adminPanelBtn.style.display = 'inline-block';
+                } else {
+                    adminPanelBtn.style.display = 'none';
+                }
+            } catch (err) {
+                console.error('Role check failed:', err);
+                adminPanelBtn.style.display = 'none';
+            }
+        }
+
+        function refreshDashboard() {
+            // Add loading state to refresh button
+            const refreshBtn = document.getElementById('refreshBtn');
+            const originalHtml = refreshBtn.innerHTML;
+            
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            refreshBtn.disabled = true;
+
+            try {
+                // Call your dashboard data fetching function
+                if (typeof fetchDashboardData === 'function') {
+                    fetchDashboardData();
+                } else {
+                    // If fetchDashboardData doesn't exist, simulate refresh
+                    updateDashboardStats();
+                }
+                
+                showNotification('Dashboard data refreshed', 'success');
+            } catch (error) {
+                console.error('Refresh failed:', error);
+                showNotification('Failed to refresh data', 'error');
+            } finally {
+                // Restore button after 2 seconds
+                setTimeout(() => {
+                    refreshBtn.innerHTML = originalHtml;
+                    refreshBtn.disabled = false;
+                }, 2000);
+            }
+        }
+
+        // Fallback function if fetchDashboardData doesn't exist
+        function updateDashboardStats() {
+            // This should update your dashboard stats
+            // You'll need to implement your actual data fetching logic here
+            console.log('Updating dashboard stats...');
+            
+            // Example: Update temperature
+            // document.getElementById('temperature').textContent = '--°C';
+            
+            // Add your actual data fetching code here
+        }
+
+        function showNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                <span>${message}</span>
+            `;
+            
+            // Add to page
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
 
 
             <!-- Pig Management Page -->
@@ -2919,11 +3045,11 @@ body.has-bottom-nav {
 
         // Camera Settings - Store URLs
         let CAMERA_URLS = {
-            behavior: "https://cam_stream.local:81/stream"
+            behavior: "http://cam_stream.local:81/stream"
         };
 
-        let THERMAL_WS_URL = "wss://heatmap/thermal";
-        let CONTROL_WS_URL = "wss://heatmap/control";
+        let THERMAL_WS_URL = "ws://heatmap/thermal";
+        let CONTROL_WS_URL = "ws://heatmap/control";
 
         const DEFAULT_CAMERA_URLS = {
             behavior: "http://cam_stream.local:81/stream",
