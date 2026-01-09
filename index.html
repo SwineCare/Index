@@ -1919,10 +1919,33 @@ body.has-bottom-nav {
                         }
                     </style>
 
-                    <label for="showerSchedule">Shower Schedule</label>
-                    <input type="time" id="showerSchedule" class="schedule-input" value="12:00">
-                    <input type="time" id="showerSchedule2" class="schedule-input" value="18:00"
-                        style="margin-top: 0.5rem;">
+        <!-- Yellow Info Card -->
+        <div style="
+            background: #fff3cd;
+            border: 1px solid #ffe69c;
+            color: #664d03;
+            padding: 1rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        ">
+            <strong>Automatic Shower:</strong><br>
+            Above <strong>40°C</strong> automatically triggers the shower.
+            <br>
+            <span style="font-size: 0.85rem;">
+                (Will not stop releasing water unless swine body temperature decreases)
+            </span>
+
+            <hr style="border: none; border-top: 1px solid #ffe69c; margin: 0.75rem 0;">
+
+            <strong>Manual Shower:</strong><br>
+            Manually triggered through the button.
+            <br>
+            <span style="font-size: 0.85rem;">
+                (Releases water for 60 seconds)
+            </span>
+        </div>
 
                     <!-- Updated onclick to pass 'this' -->
                     <button id="manualShowerBtn" class="btn btn-secondary mt-2" onclick="manualShower(this)"
@@ -3045,11 +3068,11 @@ body.has-bottom-nav {
 
         // Camera Settings - Store URLs
         let CAMERA_URLS = {
-            behavior: "https://cam_stream.local:81/stream"
+            behavior: "http://cam_stream.local:81/stream"
         };
 
-        let THERMAL_WS_URL = "wss://heatmap/thermal";
-        let CONTROL_WS_URL = "wss://heatmap/control";
+        let THERMAL_WS_URL = "ws://heatmap/thermal";
+        let CONTROL_WS_URL = "ws://heatmap/control";
 
         const DEFAULT_CAMERA_URLS = {
             behavior: "http://cam_stream.local:81/stream",
