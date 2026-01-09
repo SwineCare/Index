@@ -1914,43 +1914,42 @@ body.has-bottom-nav {
                 </div>
             </div>
 
-            <div class="control-card">
-                <div class="control-header">
-                    <span class="control-title"><i class="fas fa-shower"
-                            style="margin-right: 0.5rem; color: var(--primary-pink);"></i> Water Shower</span>
-                    <label class="switch">
-                        <input type="checkbox" id="showerSwitch" disabled>
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div>
-                    <!-- Add this style block for the spinner animation transparency -->
-                    <style>
-                        @keyframes spinner-spin {
-                            0% {
-                                transform: rotate(0deg);
-                            }
-
-                            100% {
-                                transform: rotate(360deg);
-                            }
-                        }
-                    </style>
-
-                    <label for="showerSchedule">Shower Schedule</label>
-                    <input type="time" id="showerSchedule" class="schedule-input" value="12:00">
-                    <input type="time" id="showerSchedule2" class="schedule-input" value="18:00"
-                        style="margin-top: 0.5rem;">
-
-                    <!-- Updated onclick to pass 'this' -->
-                    <button id="manualShowerBtn" class="btn btn-secondary mt-2" onclick="manualShower(this)"
-                        style="width: 100%;">
-                        <i class="fas fa-shower"></i> Shower Now
-                    </button>
-                </div>
-            </div>
-        </div>
+<div class="control-card">
+    <div class="control-header">
+        <span class="control-title">
+            <i class="fas fa-shower" style="margin-right: 0.5rem; color: var(--primary-pink);"></i>
+            Water Shower
+        </span>
+        <label class="switch">
+            <input type="checkbox" id="showerSwitch" disabled>
+            <span class="slider"></span>
+        </label>
     </div>
+
+    <!-- Yellow Info Card -->
+    <div class="info-card">
+        <strong>Automatic Shower</strong><br>
+        Above <b>40°C</b> automatically triggers the shower.
+        <br>
+        <small>(Will not stop releasing water unless swine body temperature decreases)</small>
+
+        <hr>
+
+        <strong>Manual Shower</strong><br>
+        Manually triggered through the button.
+        <br>
+        <small>(Releases water for 60 seconds)</small>
+    </div>
+
+    <!-- Manual Shower Button -->
+    <button id="manualShowerBtn"
+        class="btn btn-secondary mt-2"
+        onclick="manualShower(this)"
+        style="width: 100%;">
+        <i class="fas fa-shower"></i> Shower Now
+    </button>
+</div>
+
             
     <script>
         // Ensure Firebase is initialized
