@@ -1565,6 +1565,18 @@ body.has-bottom-nav {
 .bottom-nav {
     padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
 }
+
+/* Water Shower Yellow Card */
+.info-card {
+    background: #fff3cd;
+    color: #664d03;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid #ffecb5;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
     </style>
 </head>
 
@@ -1908,19 +1920,15 @@ body.has-bottom-nav {
         </label>
     </div>
 
-    <!-- Yellow Info Card -->
+    <!-- Info Card -->
     <div class="info-card">
         <strong>Automatic Shower</strong><br>
-        Above <b>40°C</b> automatically triggers the shower.
-        <br>
-        <small>(Will not stop releasing water unless swine body temperature decreases)</small>
-
-        <hr>
-
+        Above <b>40°C</b> automatically triggers shower.<br>
+        <em>(Will not stop releasing water unless swine body temperature decreases)</em>
+        <br><br>
         <strong>Manual Shower</strong><br>
-        Manually triggered through the button.
-        <br>
-        <small>(Releases water for 60 seconds)</small>
+        Manually triggered through button.<br>
+        <em>(Releases water for 60 seconds)</em>
     </div>
 
     <!-- Manual Shower Button -->
@@ -1931,9 +1939,7 @@ body.has-bottom-nav {
         <i class="fas fa-shower"></i> Shower Now
     </button>
 </div>
-
-
-
+            
     <script>
         // Ensure Firebase is initialized
         document.addEventListener('DOMContentLoaded', function() {
