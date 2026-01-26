@@ -3329,13 +3329,13 @@ function logout() {
             event.target.classList.add('active');
 
             const titles = {
-                'dashboard': 'Dashboard',
-                'pigs': 'Swine Management',
-                'comparison': 'Swine Comparison',
-                'statistics': 'Environmental Statistics',
-                'notifications': 'Notifications',
-                'reports': 'Reports',
-                'settings': 'Camera Settings'
+        'dashboard': 'Dashboard - Care Smarter. Farm Better.',
+        'pigs': 'Care Smarter. Farm Better.',
+        'comparison': 'Care Smarter. Farm Better.',
+        'statistics': 'Care Smarter. Farm Better.',
+        'notifications': 'Care Smarter. Farm Better.',
+        'reports': 'Care Smarter. Farm Better.',
+        'settings': 'Care Smarter. Farm Better.'
             };
             document.getElementById('pageTitle').textContent = titles[pageId];
         }
@@ -6293,153 +6293,235 @@ function logout() {
             generatePDFReport(startDate, endDate);
         }
 
-        async function generatePDFReport(startDate, endDate) {
-            try {
-                showNotification('Generating report, please wait...', 'info');
+async function generatePDFReport(startDate, endDate) {
+    try {
+        showNotification('Generating report, please wait...', 'info');
 
-                // Convert dates to timestamps
-                const startTimestamp = new Date(startDate).setHours(0, 0, 0, 0);
-                const endTimestamp = new Date(endDate).setHours(23, 59, 59, 999);
+        // Convert dates to timestamps
+        const startTimestamp = new Date(startDate).setHours(0, 0, 0, 0);
+        const endTimestamp = new Date(endDate).setHours(23, 59, 59, 999);
 
-                // Fetch pigs data
-                const pigsSnapshot = await firestore.collection('pigs')
-                    .where('userId', '==', currentUser.uid)
-                    .get();
+        // Fetch pigs data
+        const pigsSnapshot = await firestore.collection('pigs')
+            .where('userId', '==', currentUser.uid)
+            .get();
 
-                // Fetch edit history within date range
-                const historySnapshot = await firestore.collection('pigEditHistory')
-                    .where('userId', '==', currentUser.uid)
-                    .where('timestamp', '>=', startTimestamp)
-                    .where('timestamp', '<=', endTimestamp)
-                    .orderBy('timestamp', 'desc')
-                    .get();
+        // Fetch edit history within date range
+        const historySnapshot = await firestore.collection('pigEditHistory')
+            .where('userId', '==', currentUser.uid)
+            .where('timestamp', '>=', startTimestamp)
+            .where('timestamp', '<=', endTimestamp)
+            .orderBy('timestamp', 'desc')
+            .get();
 
-                // Fetch sensor data within date range
-                const sensorRef = database.ref(`sensorData/${currentUser.uid}`);
-                const sensorSnapshot = await sensorRef
-                    .orderByChild('timestamp')
-                    .startAt(startTimestamp)
-                    .endAt(endTimestamp)
-                    .once('value');
+        // Fetch sensor data within date range
+        const sensorRef = database.ref(`sensorData/${currentUser.uid}`);
+        const sensorSnapshot = await sensorRef
+            .orderByChild('timestamp')
+            .startAt(startTimestamp)
+            .endAt(endTimestamp)
+            .once('value');
 
-                const sensorData = [];
-                sensorSnapshot.forEach(child => {
-                    sensorData.push(child.val());
-                });
+        const sensorData = [];
+        sensorSnapshot.forEach(child => {
+            sensorData.push(child.val());
+        });
 
-                // Calculate average temperature and humidity from filtered data
-                const avgTemp = sensorData.length > 0
-                    ? (sensorData.reduce((sum, d) => sum + (parseFloat(d.temperature) || 0), 0) / sensorData.length).toFixed(2)
-                    : 0;
-                const avgHumidity = sensorData.length > 0
-                    ? (sensorData.reduce((sum, d) => sum + (parseFloat(d.humidity) || 0), 0) / sensorData.length).toFixed(2)
-                    : 0;
-                const avgPigTemp = sensorData.length > 0
-                    ? (sensorData.reduce((sum, d) => sum + (parseFloat(d.pigBodyTemp) || 0), 0) / sensorData.length).toFixed(2)
-                    : 0;
+        // Calculate average temperature and humidity from filtered data
+        const avgTemp = sensorData.length > 0
+            ? (sensorData.reduce((sum, d) => sum + (parseFloat(d.temperature) || 0), 0) / sensorData.length).toFixed(2)
+            : 0;
+        const avgHumidity = sensorData.length > 0
+            ? (sensorData.reduce((sum, d) => sum + (parseFloat(d.humidity) || 0), 0) / sensorData.length).toFixed(2)
+            : 0;
+        const avgPigTemp = sensorData.length > 0
+            ? (sensorData.reduce((sum, d) => sum + (parseFloat(d.pigBodyTemp) || 0), 0) / sensorData.length).toFixed(2)
+            : 0;
 
-                // Temperature status
-                let tempStatus = 'Normal';
-                let tempColor = '#4CAF50';
-                if (avgTemp < 30) {
-                    tempStatus = 'Abnormal - Cold';
-                    tempColor = '#2196F3';
-                } else if (avgTemp > 34) {
-                    tempStatus = 'Abnormal - Hot';
-                    tempColor = '#F44336';
+        // Temperature status
+        let tempStatus = 'Normal';
+        let tempColor = '#4CAF50';
+        if (avgTemp < 30) {
+            tempStatus = 'Abnormal - Cold';
+            tempColor = '#2196F3';
+        } else if (avgTemp > 34) {
+            tempStatus = 'Abnormal - Hot';
+            tempColor = '#F44336';
+        }
+
+        // Humidity status
+        let humidityStatus = 'Normal';
+        let humidityColor = '#4CAF50';
+        if (avgHumidity < 40) {
+            humidityStatus = 'Abnormal - Too Dry';
+            humidityColor = '#FF9800';
+        } else if (avgHumidity > 75) {
+            humidityStatus = 'Abnormal - Too Humid';
+            humidityColor = '#F44336';
+        }
+
+        // Pig body temperature status
+        let pigTempStatus = 'Normal';
+        let pigTempColor = '#4CAF50';
+        if (avgPigTemp < 38) {
+            pigTempStatus = 'Below Normal';
+            pigTempColor = '#2196F3';
+        } else if (avgPigTemp > 40) {
+            pigTempStatus = 'Above Normal - Possible Fever';
+            pigTempColor = '#F44336';
+        }
+
+        let allPigsData = [];
+        let totalRevenue = 0;
+
+        pigsSnapshot.forEach(doc => {
+            const pig = doc.data();
+            allPigsData.push({ id: doc.id, ...pig });
+
+            // Calculate revenue for sold pigs within date range
+            if (pig.status === 'sold' && pig.saleDate && pig.saleDate >= startTimestamp && pig.saleDate <= endTimestamp) {
+                totalRevenue += pig.saleAmount || 0;
+            }
+        });
+
+        // Apply filters to pigs for overall statistics
+        const filteredPigsData = filterPigs(allPigsData);
+
+        // Count statistics from filtered pigs
+        let totalPigs = filteredPigsData.length;
+        let activePigs = 0;
+        let soldPigs = 0;
+
+        filteredPigsData.forEach(pig => {
+            if (pig.status === 'active') activePigs++;
+            if (pig.status === 'sold') soldPigs++;
+        });
+
+        // Build filter description
+        let filterDescription = '';
+        let hasFilters = false;
+
+        if (activeReportFilters.breed || activeReportFilters.age !== null || activeReportFilters.weight !== null ||
+            activeReportFilters.length !== null || activeReportFilters.gender) {
+            hasFilters = true;
+            filterDescription = '<div style="background: rgba(233, 30, 99, 0.08); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #E91E63;">';
+            filterDescription += '<strong style="color: #C2185B;"><i class="fas fa-filter"></i> Active Filters:</strong> ';
+            const filters = [];
+            if (activeReportFilters.breed) filters.push(`Breed: ${activeReportFilters.breed}`);
+            if (activeReportFilters.age !== null) {
+                const ageText = activeReportFilters.ageComparator === 'exact' ? `Exactly ${activeReportFilters.age}` :
+                    activeReportFilters.ageComparator === 'below' ? `Below ${activeReportFilters.age}` :
+                        `Above ${activeReportFilters.age}`;
+                filters.push(`Age: ${ageText} months`);
+            }
+            if (activeReportFilters.weight !== null) {
+                const weightText = activeReportFilters.weightComparator === 'exact' ? `Exactly ${activeReportFilters.weight}` :
+                    activeReportFilters.weightComparator === 'below' ? `≤ ${activeReportFilters.weight}` :
+                        `≥ ${activeReportFilters.weight}`;
+                filters.push(`Weight: ${weightText} kg`);
+            }
+            if (activeReportFilters.length !== null) {
+                const lengthText = activeReportFilters.lengthComparator === 'exact' ? `Exactly ${activeReportFilters.length}` :
+                    activeReportFilters.lengthComparator === 'below' ? `≤ ${activeReportFilters.length}` :
+                        `≥ ${activeReportFilters.length}`;
+                filters.push(`Length: ${lengthText} cm`);
+            }
+            if (activeReportFilters.gender) filters.push(`Gender: ${activeReportFilters.gender}`);
+            filterDescription += filters.join(' | ');
+            filterDescription += '</div>';
+        }
+
+        // Build pig sections - SHOW ALL DATA WHEN NO FILTERS APPLIED
+        let pigSections = '';
+
+        // When no filters, show all pigs grouped by different categories
+        if (!hasFilters) {
+            // Group by Breed (show all breeds)
+            const breeds = [...new Set(allPigsData.map(p => p.breed))].filter(breed => breed);
+            
+            breeds.forEach(breed => {
+                const breedPigs = allPigsData.filter(p => p.breed === breed);
+                if (breedPigs.length > 0) {
+                    pigSections += `
+                        <div style="margin-bottom: 2rem; page-break-inside: avoid;">
+                            <h3 style="color: #E91E63; font-size: 1.3rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #FCE4EC;">
+                                <i class="fas fa-dna"></i> Breed: ${breed} (${breedPigs.length} pig${breedPigs.length > 1 ? 's' : ''})
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem;">
+                                ${breedPigs.map(pig => `
+                                    <div style="background: white; padding: 1rem; border-radius: 8px; border: 2px solid #E8E8E8;">
+                                        <div style="font-weight: 700; color: #E91E63; margin-bottom: 0.5rem; font-size: 1rem;">${pig.tagNumber}</div>
+                                        <div style="font-size: 0.8rem; color: #666;">
+                                            <div><strong>Age:</strong> ${pig.age} mo</div>
+                                            <div><strong>Weight:</strong> ${pig.weight} kg</div>
+                                            <div><strong>Length:</strong> ${pig.length} cm</div>
+                                            <div><strong>Gender:</strong> ${pig.gender}</div>
+                                            <div style="margin-top: 0.5rem;">
+                                                <span style="padding: 0.25rem 0.5rem; border-radius: 10px; font-size: 0.7rem; font-weight: 700; background: ${pig.status === 'active' ? 'rgba(76, 175, 80, 0.12)' : 'rgba(244, 67, 54, 0.12)'}; color: ${pig.status === 'active' ? '#4CAF50' : '#F44336'};">
+                                                    ${pig.status.toUpperCase()}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
                 }
+            });
 
-                // Humidity status
-                let humidityStatus = 'Normal';
-                let humidityColor = '#4CAF50';
-                if (avgHumidity < 40) {
-                    humidityStatus = 'Abnormal - Too Dry';
-                    humidityColor = '#FF9800';
-                } else if (avgHumidity > 75) {
-                    humidityStatus = 'Abnormal - Too Humid';
-                    humidityColor = '#F44336';
-                }
-
-                // Pig body temperature status
-                let pigTempStatus = 'Normal';
-                let pigTempColor = '#4CAF50';
-                if (avgPigTemp < 38) {
-                    pigTempStatus = 'Below Normal';
-                    pigTempColor = '#2196F3';
-                } else if (avgPigTemp > 40) {
-                    pigTempStatus = 'Above Normal - Possible Fever';
-                    pigTempColor = '#F44336';
-                }
-
-                let allPigsData = [];
-                let totalRevenue = 0;
-
-                pigsSnapshot.forEach(doc => {
-                    const pig = doc.data();
-                    allPigsData.push({ id: doc.id, ...pig });
-
-                    // Calculate revenue for sold pigs within date range
-                    if (pig.status === 'sold' && pig.saleDate && pig.saleDate >= startTimestamp && pig.saleDate <= endTimestamp) {
-                        totalRevenue += pig.saleAmount || 0;
-                    }
-                });
-
-                // Apply filters to pigs for overall statistics
-                const filteredPigsData = filterPigs(allPigsData);
-
-                // Count statistics from filtered pigs
-                let totalPigs = filteredPigsData.length;
-                let activePigs = 0;
-                let soldPigs = 0;
-
-                filteredPigsData.forEach(pig => {
-                    if (pig.status === 'active') activePigs++;
-                    if (pig.status === 'sold') soldPigs++;
-                });
-
-                // Build filter description
-                let filterDescription = '';
-                let hasFilters = false;
-
-                if (activeReportFilters.breed || activeReportFilters.age !== null || activeReportFilters.weight !== null ||
-                    activeReportFilters.length !== null || activeReportFilters.gender) {
-                    hasFilters = true;
-                    filterDescription = '<div style="background: rgba(233, 30, 99, 0.08); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #E91E63;">';
-                    filterDescription += '<strong style="color: #C2185B;"><i class="fas fa-filter"></i> Active Filters:</strong> ';
-                    const filters = [];
-                    if (activeReportFilters.breed) filters.push(`Breed: ${activeReportFilters.breed}`);
-                    if (activeReportFilters.age !== null) {
-                        const ageText = activeReportFilters.ageComparator === 'exact' ? `Exactly ${activeReportFilters.age}` :
-                            activeReportFilters.ageComparator === 'below' ? `Below ${activeReportFilters.age}` :
-                                `Above ${activeReportFilters.age}`;
-                        filters.push(`Age: ${ageText} months`);
-                    }
-                    if (activeReportFilters.weight !== null) {
-                        const weightText = activeReportFilters.weightComparator === 'exact' ? `Exactly ${activeReportFilters.weight}` :
-                            activeReportFilters.weightComparator === 'below' ? `≤ ${activeReportFilters.weight}` :
-                                `≥ ${activeReportFilters.weight}`;
-                        filters.push(`Weight: ${weightText} kg`);
-                    }
-                    if (activeReportFilters.length !== null) {
-                        const lengthText = activeReportFilters.lengthComparator === 'exact' ? `Exactly ${activeReportFilters.length}` :
-                            activeReportFilters.lengthComparator === 'below' ? `≤ ${activeReportFilters.length}` :
-                                `≥ ${activeReportFilters.length}`;
-                        filters.push(`Length: ${lengthText} cm`);
-                    }
-                    if (activeReportFilters.gender) filters.push(`Gender: ${activeReportFilters.gender}`);
-                    filterDescription += filters.join(' | ');
-                    filterDescription += '</div>';
-                }
-
-                // Build filtered pig sections - APPLY EACH FILTER INDIVIDUALLY
-                let filteredPigSections = '';
-
-                if (hasFilters) {
-                    // Group by Breed if filtered
-                    if (activeReportFilters.breed) {
-                        const breedPigs = allPigsData.filter(p => p.breed === activeReportFilters.breed);
-                        if (breedPigs.length > 0) {
-                            filteredPigSections += `
+            // Also show gender summary
+            const malePigs = allPigsData.filter(p => p.gender === 'Male');
+            const femalePigs = allPigsData.filter(p => p.gender === 'Female');
+            
+            if (malePigs.length > 0 || femalePigs.length > 0) {
+                pigSections += `
+                    <div style="margin-bottom: 2rem; page-break-inside: avoid;">
+                        <h3 style="color: #E91E63; font-size: 1.3rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #FCE4EC;">
+                            <i class="fas fa-venus-mars"></i> Gender Summary
+                        </h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <div style="background: rgba(33, 150, 243, 0.08); padding: 1rem; border-radius: 8px; border-left: 4px solid #2196F3;">
+                                <h4 style="color: #2196F3; margin-bottom: 0.5rem;"><i class="fas fa-mars"></i> Male Pigs: ${malePigs.length}</h4>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.5rem;">
+                                    ${malePigs.slice(0, 10).map(pig => `
+                                        <div style="background: white; padding: 0.5rem; border-radius: 6px; border: 1px solid #E8E8E8;">
+                                            <div style="font-weight: 700; color: #2196F3; font-size: 0.9rem;">${pig.tagNumber}</div>
+                                            <div style="font-size: 0.7rem; color: #666;">
+                                                <div>Breed: ${pig.breed}</div>
+                                                <div>Age: ${pig.age} mo</div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                    ${malePigs.length > 10 ? `<div style="text-align: center; padding: 0.5rem; color: #666; font-size: 0.8rem;">...and ${malePigs.length - 10} more</div>` : ''}
+                                </div>
+                            </div>
+                            <div style="background: rgba(233, 30, 99, 0.08); padding: 1rem; border-radius: 8px; border-left: 4px solid #E91E63;">
+                                <h4 style="color: #E91E63; margin-bottom: 0.5rem;"><i class="fas fa-venus"></i> Female Pigs: ${femalePigs.length}</h4>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.5rem;">
+                                    ${femalePigs.slice(0, 10).map(pig => `
+                                        <div style="background: white; padding: 0.5rem; border-radius: 6px; border: 1px solid #E8E8E8;">
+                                            <div style="font-weight: 700; color: #E91E63; font-size: 0.9rem;">${pig.tagNumber}</div>
+                                            <div style="font-size: 0.7rem; color: #666;">
+                                                <div>Breed: ${pig.breed}</div>
+                                                <div>Age: ${pig.age} mo</div>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                    ${femalePigs.length > 10 ? `<div style="text-align: center; padding: 0.5rem; color: #666; font-size: 0.8rem;">...and ${femalePigs.length - 10} more</div>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        } else {
+            // When filters are applied, show filtered sections as before
+            // Group by Breed if filtered
+            if (activeReportFilters.breed) {
+                const breedPigs = allPigsData.filter(p => p.breed === activeReportFilters.breed);
+                if (breedPigs.length > 0) {
+                    pigSections += `
                         <div style="margin-bottom: 2rem; page-break-inside: avoid;">
                             <h3 style="color: #E91E63; font-size: 1.3rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #FCE4EC;">
                                 <i class="fas fa-dna"></i> Breed: ${activeReportFilters.breed} (${breedPigs.length} pig${breedPigs.length > 1 ? 's' : ''})
@@ -6464,31 +6546,31 @@ function logout() {
                             </div>
                         </div>
                     `;
-                        }
-                    }
+                }
+            }
 
-                    // Group by Age if filtered
-                    if (activeReportFilters.age !== null) {
-                        let agePigs = [];
-                        if (activeReportFilters.ageComparator === 'exact') {
-                            agePigs = allPigsData.filter(p => p.age === activeReportFilters.age);
-                        } else if (activeReportFilters.ageComparator === 'below') {
-                            agePigs = allPigsData.filter(p => p.age < activeReportFilters.age);
-                        } else {
-                            agePigs = allPigsData.filter(p => p.age > activeReportFilters.age);
-                        }
+            // Group by Age if filtered
+            if (activeReportFilters.age !== null) {
+                let agePigs = [];
+                if (activeReportFilters.ageComparator === 'exact') {
+                    agePigs = allPigsData.filter(p => p.age === activeReportFilters.age);
+                } else if (activeReportFilters.ageComparator === 'below') {
+                    agePigs = allPigsData.filter(p => p.age < activeReportFilters.age);
+                } else {
+                    agePigs = allPigsData.filter(p => p.age > activeReportFilters.age);
+                }
 
-                        let ageTitle = '';
-                        if (activeReportFilters.ageComparator === 'exact') {
-                            ageTitle = `Age: Exactly ${activeReportFilters.age} months`;
-                        } else if (activeReportFilters.ageComparator === 'below') {
-                            ageTitle = `Age: Below ${activeReportFilters.age} months`;
-                        } else {
-                            ageTitle = `Age: Above ${activeReportFilters.age} months`;
-                        }
+                let ageTitle = '';
+                if (activeReportFilters.ageComparator === 'exact') {
+                    ageTitle = `Age: Exactly ${activeReportFilters.age} months`;
+                } else if (activeReportFilters.ageComparator === 'below') {
+                    ageTitle = `Age: Below ${activeReportFilters.age} months`;
+                } else {
+                    ageTitle = `Age: Above ${activeReportFilters.age} months`;
+                }
 
-                        if (agePigs.length > 0) {
-                            filteredPigSections += `
+                if (agePigs.length > 0) {
+                    pigSections += `
                         <div style="margin-bottom: 2rem; page-break-inside: avoid;">
                             <h3 style="color: #E91E63; font-size: 1.3rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #FCE4EC;">
                                 <i class="fas fa-calendar-alt"></i> ${ageTitle} (${agePigs.length} pig${agePigs.length > 1 ? 's' : ''})
@@ -6514,31 +6596,31 @@ function logout() {
                             </div>
                         </div>
                     `;
-                        }
-                    }
+                }
+            }
 
-                    // Group by Weight if filtered
-                    if (activeReportFilters.weight !== null) {
-                        let weightPigs = [];
-                        if (activeReportFilters.weightComparator === 'exact') {
-                            weightPigs = allPigsData.filter(p => p.weight === activeReportFilters.weight);
-                        } else if (activeReportFilters.weightComparator === 'below') {
-                            weightPigs = allPigsData.filter(p => p.weight <= activeReportFilters.weight);
-                        } else {
-                            weightPigs = allPigsData.filter(p => p.weight >= activeReportFilters.weight);
-                        }
+            // Group by Weight if filtered
+            if (activeReportFilters.weight !== null) {
+                let weightPigs = [];
+                if (activeReportFilters.weightComparator === 'exact') {
+                    weightPigs = allPigsData.filter(p => p.weight === activeReportFilters.weight);
+                } else if (activeReportFilters.weightComparator === 'below') {
+                    weightPigs = allPigsData.filter(p => p.weight <= activeReportFilters.weight);
+                } else {
+                    weightPigs = allPigsData.filter(p => p.weight >= activeReportFilters.weight);
+                }
 
-                        let weightTitle = '';
-                        if (activeReportFilters.weightComparator === 'exact') {
-                            weightTitle = `Weight: Exactly ${activeReportFilters.weight} kg`;
-                        } else if (activeReportFilters.weightComparator === 'below') {
-                            weightTitle = `Weight: ${activeReportFilters.weight} kg and Below`;
-                        } else {
-                            weightTitle = `Weight: ${activeReportFilters.weight} kg and Above`;
-                        }
+                let weightTitle = '';
+                if (activeReportFilters.weightComparator === 'exact') {
+                    weightTitle = `Weight: Exactly ${activeReportFilters.weight} kg`;
+                } else if (activeReportFilters.weightComparator === 'below') {
+                    weightTitle = `Weight: ${activeReportFilters.weight} kg and Below`;
+                } else {
+                    weightTitle = `Weight: ${activeReportFilters.weight} kg and Above`;
+                }
 
-                        if (weightPigs.length > 0) {
-                            filteredPigSections += `
+                if (weightPigs.length > 0) {
+                    pigSections += `
                         <div style="margin-bottom: 2rem; page-break-inside: avoid;">
                             <h3 style="color: #E91E63; font-size: 1.3rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #FCE4EC;">
                                 <i class="fas fa-weight"></i> ${weightTitle} (${weightPigs.length} pig${weightPigs.length > 1 ? 's' : ''})
@@ -6564,31 +6646,31 @@ function logout() {
                             </div>
                         </div>
                     `;
-                        }
-                    }
+                }
+            }
 
-                    // Group by Length if filtered
-                    if (activeReportFilters.length !== null) {
-                        let lengthPigs = [];
-                        if (activeReportFilters.lengthComparator === 'exact') {
-                            lengthPigs = allPigsData.filter(p => p.length === activeReportFilters.length);
-                        } else if (activeReportFilters.lengthComparator === 'below') {
-                            lengthPigs = allPigsData.filter(p => p.length <= activeReportFilters.length);
-                        } else {
-                            lengthPigs = allPigsData.filter(p => p.length >= activeReportFilters.length);
-                        }
+            // Group by Length if filtered
+            if (activeReportFilters.length !== null) {
+                let lengthPigs = [];
+                if (activeReportFilters.lengthComparator === 'exact') {
+                    lengthPigs = allPigsData.filter(p => p.length === activeReportFilters.length);
+                } else if (activeReportFilters.lengthComparator === 'below') {
+                    lengthPigs = allPigsData.filter(p => p.length <= activeReportFilters.length);
+                } else {
+                    lengthPigs = allPigsData.filter(p => p.length >= activeReportFilters.length);
+                }
 
-                        let lengthTitle = '';
-                        if (activeReportFilters.lengthComparator === 'exact') {
-                            lengthTitle = `Length: Exactly ${activeReportFilters.length} cm`;
-                        } else if (activeReportFilters.lengthComparator === 'below') {
-                            lengthTitle = `Length: ${activeReportFilters.length} cm and Below`;
-                        } else {
-                            lengthTitle = `Length: ${activeReportFilters.length} cm and Above`;
-                        }
+                let lengthTitle = '';
+                if (activeReportFilters.lengthComparator === 'exact') {
+                    lengthTitle = `Length: Exactly ${activeReportFilters.length} cm`;
+                } else if (activeReportFilters.lengthComparator === 'below') {
+                    lengthTitle = `Length: ${activeReportFilters.length} cm and Below`;
+                } else {
+                    lengthTitle = `Length: ${activeReportFilters.length} cm and Above`;
+                }
 
-                        if (lengthPigs.length > 0) {
-                            filteredPigSections += `
+                if (lengthPigs.length > 0) {
+                    pigSections += `
                         <div style="margin-bottom: 2rem; page-break-inside: avoid;">
                             <h3 style="color: #E91E63; font-size: 1.3rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #FCE4EC;">
                                 <i class="fas fa-ruler-horizontal"></i> ${lengthTitle} (${lengthPigs.length} pig${lengthPigs.length > 1 ? 's' : ''})
@@ -6614,14 +6696,14 @@ function logout() {
                             </div>
                         </div>
                     `;
-                        }
-                    }
+                }
+            }
 
-                    // Group by Gender if filtered
-                    if (activeReportFilters.gender) {
-                        const genderPigs = allPigsData.filter(p => p.gender === activeReportFilters.gender);
-                        if (genderPigs.length > 0) {
-                            filteredPigSections += `
+            // Group by Gender if filtered
+            if (activeReportFilters.gender) {
+                const genderPigs = allPigsData.filter(p => p.gender === activeReportFilters.gender);
+                if (genderPigs.length > 0) {
+                    pigSections += `
                         <div style="margin-bottom: 2rem; page-break-inside: avoid;">
                             <h3 style="color: #E91E63; font-size: 1.3rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #FCE4EC;">
                                 <i class="fas fa-venus-mars"></i> Gender: ${activeReportFilters.gender} (${genderPigs.length} pig${genderPigs.length > 1 ? 's' : ''})
@@ -6646,12 +6728,12 @@ function logout() {
                             </div>
                         </div>
                     `;
-                        }
-                    }
                 }
+            }
+        }
 
-                const reportContent = document.getElementById('reportContent');
-                reportContent.innerHTML = `
+        const reportContent = document.getElementById('reportContent');
+        reportContent.innerHTML = `
             <div id="pdfContent" style="font-family: 'Inter', Arial, sans-serif; padding: 2rem; background: white;">
                 <div style="text-align: center; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 3px solid #E91E63;">
                     <div style="background: linear-gradient(135deg, #E91E63, #C2185B); color: white; padding: 2rem; border-radius: 16px; margin-bottom: 1.5rem;">
@@ -6666,11 +6748,11 @@ function logout() {
 
                 <div style="margin-bottom: 2.5rem;">
                     <h2 style="color: #C2185B; margin-bottom: 1.5rem; font-size: 1.6rem; font-weight: 700; border-left: 4px solid #E91E63; padding-left: 1rem;">
-                        Overall Statistics ${hasFilters ? '(Filtered - Combined Criteria)' : ''}
+                        Overall Statistics ${hasFilters ? '(Filtered - Combined Criteria)' : '(All Pigs)'}
                     </h2>
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem;">
                         <div style="background: rgba(233, 30, 99, 0.08); padding: 1.5rem; border-radius: 12px; border-left: 4px solid #E91E63; text-align: center;">
-                            <div style="font-size: 0.8rem; color: #666; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">Total Pigs${hasFilters ? ' (All Filters)' : ''}</div>
+                            <div style="font-size: 0.8rem; color: #666; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">Total Pigs${hasFilters ? ' (Filtered)' : ''}</div>
                             <div style="font-size: 2.2rem; font-weight: 800; color: #E91E63;">${totalPigs}</div>
                         </div>
                         <div style="background: rgba(76, 175, 80, 0.08); padding: 1.5rem; border-radius: 12px; border-left: 4px solid #4CAF50; text-align: center;">
@@ -6690,88 +6772,61 @@ function logout() {
                     ` : ''}
                 </div>
 
-                <div style="margin-bottom: 2.5rem;">
-                    <h2 style="color: #C2185B; margin-bottom: 1.5rem; font-size: 1.6rem; font-weight: 700; border-left: 4px solid #E91E63; padding-left: 1rem;">
-                        Environmental Conditions (${startDate} to ${endDate})
-                    </h2>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
-                        <div style="background: white; padding: 1.5rem; border-radius: 12px; border: 2px solid #E8E8E8;">
-                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                                <div style="width: 50px; height: 50px; background: rgba(233, 30, 99, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-thermometer-half" style="color: #E91E63; font-size: 1.5rem;"></i>
-                                </div>
-                                <div>
-                                    <div style="font-size: 0.85rem; color: #666; font-weight: 700; text-transform: uppercase;">Ambient Temp</div>
-                                    <div style="font-size: 1.8rem; font-weight: 800; color: ${tempColor};">${avgTemp}°C</div>
-                                </div>
-                            </div>
-                            <div style="padding: 0.8rem; background: ${tempColor}15; border-left: 4px solid ${tempColor}; border-radius: 8px;">
-                                <strong style="color: ${tempColor};">Status: ${tempStatus}</strong>
-                                <div style="font-size: 0.85rem; color: #666; margin-top: 0.3rem;">
-                                    ${avgTemp >= 30 && avgTemp <= 34 ? '✓ Within normal range (30-34°C)' :
-                        avgTemp < 30 ? '⚠ Below normal range' :
-                            '⚠ Above normal range'}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="background: white; padding: 1.5rem; border-radius: 12px; border: 2px solid #E8E8E8;">
-                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                                <div style="width: 50px; height: 50px; background: rgba(3, 169, 244, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-tint" style="color: #03A9F4; font-size: 1.5rem;"></i>
-                                </div>
-                                <div>
-                                    <div style="font-size: 0.85rem; color: #666; font-weight: 700; text-transform: uppercase;">Humidity</div>
-                                    <div style="font-size: 1.8rem; font-weight: 800; color: ${humidityColor};">${avgHumidity}%</div>
-                                </div>
-                            </div>
-                            <div style="padding: 0.8rem; background: ${humidityColor}15; border-left: 4px solid ${humidityColor}; border-radius: 8px;">
-                                <strong style="color: ${humidityColor};">Status: ${humidityStatus}</strong>
-                                <div style="font-size: 0.85rem; color: #666; margin-top: 0.3rem;">
-                                    ${avgHumidity >= 50 && avgHumidity <= 70 ? '✓ Within normal range (50-70%)' :
-                        avgHumidity < 40 ? '⚠ Too dry' :
-                            avgHumidity > 75 ? '⚠ Too humid' :
-                                '⚠ Slightly outside range'}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="background: white; padding: 1.5rem; border-radius: 12px; border: 2px solid #E8E8E8;">
-                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                                <div style="width: 50px; height: 50px; background: rgba(255, 64, 129, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                                    <i class="fas fa-heartbeat" style="color: #FF4081; font-size: 1.5rem;"></i>
-                                </div>
-                                <div>
-                                    <div style="font-size: 0.85rem; color: #666; font-weight: 700; text-transform: uppercase;">Pig Body Temp</div>
-                                    <div style="font-size: 1.8rem; font-weight: 800; color: ${pigTempColor};">${avgPigTemp}°C</div>
-                                </div>
-                            </div>
-                            <div style="padding: 0.8rem; background: ${pigTempColor}15; border-left: 4px solid ${pigTempColor}; border-radius: 8px;">
-                                <strong style="color: ${pigTempColor};">Status: ${pigTempStatus}</strong>
-                                <div style="font-size: 0.85rem; color: #666; margin-top: 0.3rem;">
-                                    ${avgPigTemp >= 38 && avgPigTemp <= 40 ? '✓ Within normal range (38-40°C)' :
-                        avgPigTemp < 38 ? '⚠ Below normal' :
-                            '⚠ Above normal - Check health'}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<div style="margin-bottom: 2.5rem;">
+    <h2 style="color: #C2185B; margin-bottom: 1.5rem; font-size: 1.6rem; font-weight: 700; border-left: 4px solid #E91E63; padding-left: 1rem;">
+        Environmental Conditions (${startDate} to ${endDate})
+    </h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
+        <div style="background: white; padding: 1.5rem; border-radius: 12px; border: 2px solid #E8E8E8;">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                <div style="width: 50px; height: 50px; background: rgba(233, 30, 99, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-thermometer-half" style="color: #E91E63; font-size: 1.5rem;"></i>
                 </div>
+                <div>
+                    <div style="font-size: 0.85rem; color: #666; font-weight: 700; text-transform: uppercase;">Ambient Temperature</div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color: ${tempColor};">${avgTemp}°C</div>
+                </div>
+            </div>
+            <div style="padding: 0.8rem; background: ${tempColor}15; border-left: 4px solid ${tempColor}; border-radius: 8px;">
+                <strong style="color: ${tempColor};">Status: ${tempStatus}</strong>
+                <div style="font-size: 0.85rem; color: #666; margin-top: 0.3rem;">
+                    ${avgTemp >= 30 && avgTemp <= 34 ? '✓ Within normal range (30-34°C)' :
+        avgTemp < 30 ? '⚠ Below normal range' :
+            '⚠ Above normal range'}
+                </div>
+            </div>
+        </div>
 
-                ${hasFilters && filteredPigSections ? `
+        <div style="background: white; padding: 1.5rem; border-radius: 12px; border: 2px solid #E8E8E8;">
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                <div style="width: 50px; height: 50px; background: rgba(3, 169, 244, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-tint" style="color: #03A9F4; font-size: 1.5rem;"></i>
+                </div>
+                <div>
+                    <div style="font-size: 0.85rem; color: #666; font-weight: 700; text-transform: uppercase;">Humidity</div>
+                    <div style="font-size: 1.8rem; font-weight: 800; color: ${humidityColor};">${avgHumidity}%</div>
+                </div>
+            </div>
+            <div style="padding: 0.8rem; background: ${humidityColor}15; border-left: 4px solid ${humidityColor}; border-radius: 8px;">
+                <strong style="color: ${humidityColor};">Status: ${humidityStatus}</strong>
+                <div style="font-size: 0.85rem; color: #666; margin-top: 0.3rem;">
+                    ${avgHumidity >= 50 && avgHumidity <= 70 ? '✓ Within normal range (50-70%)' :
+        avgHumidity < 40 ? '⚠ Too dry' :
+            avgHumidity > 75 ? '⚠ Too humid' :
+                '⚠ Slightly outside range'}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+                ${pigSections ? `
                     <div style="margin-bottom: 2.5rem;">
                         <h2 style="color: #C2185B; margin-bottom: 1.5rem; font-size: 1.6rem; font-weight: 700; border-left: 4px solid #E91E63; padding-left: 1rem;">
-                            Filtered Pigs Summary (Individual Filters)
+                            ${hasFilters ? 'Filtered Pigs Summary (Individual Filters)' : 'All Pigs Summary'}
                         </h2>
-                        ${filteredPigSections}
-                    </div>
-                ` : ''}
-
-                ${!hasFilters ? `
-                    <div style="margin-bottom: 2.5rem; text-align: center; padding: 3rem; background: rgba(233, 30, 99, 0.05); border-radius: 12px;">
-                        <i class="fas fa-info-circle" style="font-size: 3rem; color: var(--primary-pink); opacity: 0.3; margin-bottom: 1rem; display: block;"></i>
-                        <p style="color: #666; font-size: 1.1rem;">No filters applied. Use the Advanced Filters to generate specific pig reports.</p>
+                        ${pigSections}
                     </div>
                 ` : ''}
 
@@ -6779,51 +6834,51 @@ function logout() {
                     <p style="color: #666; font-size: 0.9rem; line-height: 1.8;">
                         <strong style="color: #E91E63;">Generated on:</strong> ${new Date().toLocaleString()}<br>
                         <strong style="color: #E91E63;">Report Period:</strong> ${new Date(startDate).toLocaleDateString()} to ${new Date(endDate).toLocaleDateString()}<br>
-                        <strong style="color: #E91E63;">SwineCare</strong> - Your Swine Health Monitoring & Management System
+                        <strong style="color: #E91E63;">SwineCare</strong> - Care Smarter. Farm Better.
                     </p>
                 </div>
             </div>
         `;
 
-                // Generate PDF
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'mm', 'a4');
+        // Generate PDF
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'mm', 'a4');
 
-                const element = document.getElementById('pdfContent');
-                const canvas = await html2canvas(element, {
-                    scale: 2,
-                    useCORS: true,
-                    backgroundColor: '#ffffff',
-                    logging: false
-                });
+        const element = document.getElementById('pdfContent');
+        const canvas = await html2canvas(element, {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            logging: false
+        });
 
-                const imgData = canvas.toDataURL('image/png');
-                const imgWidth = 210;
-                const pageHeight = 295;
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                let heightLeft = imgHeight;
+        const imgData = canvas.toDataURL('image/png');
+        const imgWidth = 210;
+        const pageHeight = 295;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
 
-                let position = 0;
+        let position = 0;
 
-                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
 
-                while (heightLeft >= 0) {
-                    position = heightLeft - imgHeight;
-                    pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                    heightLeft -= pageHeight;
-                }
-
-                const filename = `SwineCare_Report_${startDate}_to_${endDate}${hasFilters ? '_Filtered' : ''}.pdf`;
-                pdf.save(filename);
-                showNotification('PDF report generated successfully!', 'success');
-
-            } catch (error) {
-                showNotification(`Report generation failed: ${error.message}`, 'error');
-                console.error('Report generation error:', error);
-            }
+        while (heightLeft >= 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
         }
+
+        const filename = `SwineCare_Report_${startDate}_to_${endDate}${hasFilters ? '_Filtered' : ''}.pdf`;
+        pdf.save(filename);
+        showNotification('PDF report generated successfully!', 'success');
+
+    } catch (error) {
+        showNotification(`Report generation failed: ${error.message}`, 'error');
+        console.error('Report generation error:', error);
+    }
+}
 
         // Setup Realtime Listeners
         function setupRealtimeListeners() {
@@ -7295,13 +7350,13 @@ function showPage(pageId) {
 
     // Update page title
     const titles = {
-        'dashboard': 'Dashboard',
-        'pigs': 'Swine Management',
-        'comparison': 'Swine Comparison',
-        'statistics': 'Environmental Statistics',
-        'notifications': 'Notifications',
-        'reports': 'Reports',
-        'settings': 'Camera Settings'
+        'dashboard': 'Dashboard - Care Smarter. Farm Better.',
+        'pigs': 'Care Smarter. Farm Better.',
+        'comparison': 'Care Smarter. Farm Better.',
+        'statistics': 'Care Smarter. Farm Better.',
+        'notifications': 'Care Smarter. Farm Better.',
+        'reports': 'Care Smarter. Farm Better.',
+        'settings': 'Care Smarter. Farm Better.'
     };
     
     document.getElementById('pageTitle').textContent = titles[pageId] || 'SwineCare';
